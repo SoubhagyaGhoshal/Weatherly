@@ -1,36 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';  // enables dynamic route rendering
 
 export async function GET(req) {
   try {
     const apiKey = process.env.OPENWEATHERMAP_API_KEY;
 
-    // Create a URL object to access searchParams
-    const url = new URL(req.url, `http://${req.headers.get("host")}`);
-    const searchParams = url.searchParams;
+    // Create a URL object from the full request URL
+    const { searchParams } = new URL(req.url, 'http://localhost');  // Fallback base for parsing
 
-    // Get the latitude and longitude from the query string
     const lat = searchParams.get("lat");
     const lon = searchParams.get("lon");
 
-    // If lat or lon are missing, handle the error
     if (!lat || !lon) {
       return NextResponse.json({ error: "Latitude and longitude are required" }, { status: 400 });
     }
 
-    // Construct the URL for the OpenWeatherMap API
-    const dailyUrl = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+    const dailyUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}`;
 
-    // Fetch the data from OpenWeatherMap API
-    const dailyRes = await fetch(dailyUrl, {
-      next: { revalidate: 3600 },
-    });
+    const dailyRes = await fetch(dailyUrl, { next: { revalidate: 3600 } });
+
+    if (!dailyRes.ok) {
+      console.error("OpenWeatherMap API error:", await dailyRes.text());
+      return NextResponse.json({ error: "Failed to fetch weather data" }, { status: dailyRes.status });
+    }
 
     const dailyData = await dailyRes.json();
-
     return NextResponse.json(dailyData);
+
   } catch (error) {
-    console.log("Error in getting daily data:", error);
-    return new Response("Error in getting daily data", { status: 500 });
+    console.error("Error in getting daily data:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

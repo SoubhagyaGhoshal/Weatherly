@@ -1,34 +1,30 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-export const dynamic = 'force-dynamic';
 
+export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
     const apiKey = process.env.OPENWEATHERMAP_API_KEY;
 
-    // Create a URL object to access searchParams
-    const url = new URL(req.url, `http://${req.headers.get("host")}`);
+    // Parse request URL
+    const url = new URL(req.url, 'http://localhost');
     const searchParams = url.searchParams;
 
-    // Get latitude and longitude from query string
     const lat = searchParams.get("lat");
     const lon = searchParams.get("lon");
 
-    // If lat or lon is missing, return an error response
     if (!lat || !lon) {
       return NextResponse.json({ error: "Latitude and Longitude are required" }, { status: 400 });
     }
 
-    // Construct the OpenWeather API URL
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&appid=${apiKey}&units=metric`;
 
-    // Fetch data using axios
-    const res = await axios.get(apiUrl);
+    const response = await axios.get(apiUrl);
 
-    return NextResponse.json(res.data);
+    return NextResponse.json(response.data);
   } catch (error) {
-    console.log("Error fetching forecast data", error);
-    return new Response("Error fetching forecast data", { status: 500 });
+    console.error("Error fetching weather data:", error?.response?.data || error.message);
+    return NextResponse.json({ error: "Error fetching weather data" }, { status: 500 });
   }
 }

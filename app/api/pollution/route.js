@@ -1,34 +1,29 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-export const dynamic = 'force-dynamic';
 
+export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
-    // Create a URL object to access searchParams
-    const url = new URL(req.url, `http://${req.headers.get("host")}`);
-    const searchParams = url.searchParams;
+    const apiKey = process.env.OPENWEATHERMAP_API_KEY;
 
-    // Get the latitude and longitude from the query string
+    // Use fallback host in case req.headers.get("host") is undefined (e.g., in Vercel)
+    const { searchParams } = new URL(req.url, 'http://localhost');
+
     const lat = searchParams.get("lat");
     const lon = searchParams.get("lon");
 
-    // If lat or lon is missing, return an error response
     if (!lat || !lon) {
       return NextResponse.json({ error: "Latitude and Longitude are required" }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENWEATHERMAP_API_KEY;
+    const apiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&appid=${apiKey}`;
 
-    // Construct the URL for the OpenWeatherMap Air Pollution API
-    const apiUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`;
-
-    // Fetch the air pollution data using axios
     const res = await axios.get(apiUrl);
 
     return NextResponse.json(res.data);
   } catch (error) {
-    console.log("Error fetching pollution data: ", error);
-    return new Response("Error fetching pollution data", { status: 500 });
+    console.error("Error fetching pollution data:", error);
+    return NextResponse.json({ error: "Failed to fetch pollution data" }, { status: 500 });
   }
 }
