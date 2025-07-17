@@ -14,18 +14,17 @@ import moment from "moment";
 function Temperature() {
   const { forecast } = useGlobalContext();
 
-  const { main, timezone, name, weather } = forecast;
-
-  if (!forecast || !weather) {
+  if (!forecast || !forecast.main || !forecast.weather) {
     return <div>Loading...</div>;
   }
 
-  // Use temperatures directly (already in Celsius)
-  const temp = main?.temp;
-  const minTemp = main?.temp_min;
-  const maxTemp = main?.temp_max;
+  const { main, timezone, name, weather } = forecast;
 
-  // State
+  // Round temperatures
+  const temp = Math.round(main.temp);
+  const minTemp = Math.round(main.temp_min);
+  const maxTemp = Math.round(main.temp_max);
+
   const [localTime, setLocalTime] = useState("");
   const [currentDay, setCurrentDay] = useState("");
 
@@ -48,15 +47,11 @@ function Temperature() {
     }
   };
 
-  // Live time update
   useEffect(() => {
     const interval = setInterval(() => {
       const localMoment = moment().utcOffset(timezone / 60);
-      const formatedTime = localMoment.format("HH:mm:ss");
-      const day = localMoment.format("dddd");
-
-      setLocalTime(formatedTime);
-      setCurrentDay(day);
+      setLocalTime(localMoment.format("HH:mm:ss"));
+      setCurrentDay(localMoment.format("dddd"));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -65,16 +60,18 @@ function Temperature() {
   return (
     <div
       className="pt-6 pb-5 px-4 border rounded-lg flex flex-col 
-        justify-between dark:bg-dark-grey shadow-sm dark:shadow-none"
+      justify-between dark:bg-dark-grey shadow-sm dark:shadow-none"
     >
       <p className="flex justify-between items-center">
         <span className="font-medium">{currentDay}</span>
         <span className="font-medium">{localTime}</span>
       </p>
+
       <p className="pt-2 font-bold flex gap-1">
         <span>{name}</span>
         <span>{navigation}</span>
       </p>
+
       <p className="py-10 text-9xl font-bold self-center">{temp}°</p>
 
       <div>
