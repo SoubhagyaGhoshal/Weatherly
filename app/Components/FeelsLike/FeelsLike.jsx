@@ -1,7 +1,6 @@
 "use client";
 import { useGlobalContext } from "@/app/context/globalContext";
 import { thermometer } from "@/app/utils/Icons.jsx";
-import { kelvinToCelsius } from "@/app/utils/misc.jsx";
 import { Skeleton } from "@/components/ui/skeleton.jsx";
 import React from "react";
 
@@ -16,15 +15,15 @@ function FeelsLike() {
 
   const feelsLikeText = (
     feelsLike,
-    minTemo,
+    minTemp,
     maxTemp
   ) => {
-    const avgTemp = (minTemo + maxTemp) / 2;
+    const avgTemp = (minTemp + maxTemp) / 2;
 
     if (feelsLike < avgTemp - 5) {
       return "Feels significantly colder than actual temperature.";
     }
-    if (feelsLike > avgTemp - 5 && feelsLike <= avgTemp + 5) {
+    if (feelsLike >= avgTemp - 5 && feelsLike <= avgTemp + 5) {
       return "Feels close to the actual temperature.";
     }
     if (feelsLike > avgTemp + 5) {
@@ -42,7 +41,7 @@ function FeelsLike() {
         <h2 className="flex items-center gap-2 font-medium">
           {thermometer} Feels Like
         </h2>
-       <p className="pt-4 text-2xl">{Math.round(feels_like)}°</p>
+        <p className="pt-4 text-2xl">{feels_like}°</p>
       </div>
 
       <p className="text-sm">{feelsLikeDescription}</p>
