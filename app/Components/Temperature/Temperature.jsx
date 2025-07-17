@@ -9,7 +9,6 @@ import {
   rain,
   snow,
 } from "@/app/utils/Icons.jsx";
-import { kelvinToCelsius } from "@/app/utils/misc";
 import moment from "moment";
 
 function Temperature() {
@@ -21,9 +20,10 @@ function Temperature() {
     return <div>Loading...</div>;
   }
 
-  const temp = kelvinToCelsius(main?.temp);
-  const minTemp = kelvinToCelsius(main?.temp_min);
-  const maxTemp = kelvinToCelsius(main?.temp_max);
+  // Use temperatures directly (already in Celsius)
+  const temp = main?.temp;
+  const minTemp = main?.temp_min;
+  const maxTemp = main?.temp_max;
 
   // State
   const [localTime, setLocalTime] = useState("");
@@ -50,19 +50,15 @@ function Temperature() {
 
   // Live time update
   useEffect(() => {
-    // upadte time every second
     const interval = setInterval(() => {
       const localMoment = moment().utcOffset(timezone / 60);
-      // custom format: 24 hour format
       const formatedTime = localMoment.format("HH:mm:ss");
-      // day of the week
       const day = localMoment.format("dddd");
 
       setLocalTime(formatedTime);
       setCurrentDay(day);
     }, 1000);
 
-    // clear interval
     return () => clearInterval(interval);
   }, [timezone]);
 
