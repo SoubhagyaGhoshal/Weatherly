@@ -6,7 +6,7 @@ import { ThemeProvider } from "./Providers/ThemeProvider.jsx";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "SkyCast",
+  title: "Weatherly",
   description: "A weather app built with Next.js and TailwindCSS",
 };
 
@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
     <head>
     <link rel="icon" sizes="16x16" href="/favicon.ico" />
-    <title>SkyCast</title>
+    <title>Weatherly</title>
     </head>
       <body className={inter.className}>
         <ThemeProvider

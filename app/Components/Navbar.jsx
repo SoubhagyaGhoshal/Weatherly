@@ -23,7 +23,7 @@ function Navbar() {
           <Button
             className="source-code-btn flex items-center gap-2"
             onClick={() => {
-              router.push("https://github.com/Yasir761/SkyCast");
+              router.push("https://github.com/SoubhagyaGhoshal/Weatherly");
             }}
           >
             {github} Source Code
